@@ -1,3 +1,4 @@
+const { validateRole } = require("../validators/roles");
 const db = require("../models"); // models path depend on your structure
 const Role = db.roles;
 
@@ -6,8 +7,8 @@ exports.create = async (req, res) => {
 
   await Role.sync();
 
-  if (!req.body.name)
-    return res.status(400).send({ message: "Content can not be empty!" });
+  const { error } = validateRole(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
   // Create a Role
   const role = {
@@ -18,8 +19,7 @@ exports.create = async (req, res) => {
   const result = Role.create(role);
   if (!result)
     return res.status(500).send({
-      message:
-        err.message || "Some error occurred while creating the Tutorial.",
+      message: err.message,
     });
 
   return res.status(200).send(result);

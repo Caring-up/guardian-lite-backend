@@ -1,3 +1,4 @@
+const { validateCareCircleGroup } = require("../validators/careCircleGroups");
 const db = require("../models"); // models path depend on your structure
 const CareCircleGroup = db.care_circle_group;
 
@@ -6,8 +7,8 @@ exports.create = async (req, res) => {
 
   await CareCircleGroup.sync();
 
-  if (!req.body.code)
-    return res.status(400).send({ message: "Content can not be empty!" });
+  const { error } = validateCareCircleGroup(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
   // Create a careCircleGroup
   const careCircleGroup = {
@@ -18,8 +19,7 @@ exports.create = async (req, res) => {
   const result = CareCircleGroup.create(careCircleGroup);
   if (!result)
     return res.status(500).send({
-      message:
-        err.message || "Some error occurred while creating the Tutorial.",
+      message: err.message,
     });
 
   return res.status(200).send(result);
